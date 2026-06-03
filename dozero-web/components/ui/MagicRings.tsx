@@ -83,6 +83,9 @@ interface MagicRingsProps {
   hoverScale?: number;
   parallax?: number;
   clickBurst?: boolean;
+  /** Freeze the render loop (keeps the last frame on the canvas) — set true while an
+   *  overlay/modal covers the rings so stacked backdrop-filters stop re-rasterizing it. */
+  paused?: boolean;
 }
 
 export default function MagicRings({
@@ -107,6 +110,7 @@ export default function MagicRings({
   hoverScale = 1.2,
   parallax = 0.05,
   clickBurst = false,
+  paused = false,
 }: MagicRingsProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const propsRef = useRef<Required<MagicRingsProps> | null>(null);
@@ -120,7 +124,7 @@ export default function MagicRings({
     color, colorTwo, speed, ringCount, attenuation, lineThickness,
     baseRadius, radiusStep, scaleRate, opacity, blur, noiseAmount,
     rotation, ringGap, fadeIn, fadeOut, followMouse, mouseInfluence,
-    hoverScale, parallax, clickBurst,
+    hoverScale, parallax, clickBurst, paused,
   };
 
   useEffect(() => {
@@ -202,15 +206,19 @@ export default function MagicRings({
     };
     const onClick = () => { burstRef.current = 1; };
 
-    mount.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mousemove', onMouseMove);
     mount.addEventListener('mouseenter', onMouseEnter);
-    mount.addEventListener('mouseleave', onMouseLeave);
+    document.addEventListener('mouseleave', onMouseLeave);
     mount.addEventListener('click', onClick);
 
     let frameId: number;
     const animate = (t: number) => {
       frameId = requestAnimationFrame(animate);
       const p = propsRef.current!;
+
+      // Frozen while covered by a modal: leave the last frame on the canvas so
+      // overlapping backdrop-filters don't have to re-rasterize an animating source.
+      if (p.paused) return;
 
       smoothMouseRef.current[0] += (mouseRef.current[0] - smoothMouseRef.current[0]) * 0.08;
       smoothMouseRef.current[1] += (mouseRef.current[1] - smoothMouseRef.current[1]) * 0.08;
@@ -248,9 +256,9 @@ export default function MagicRings({
       cancelAnimationFrame(frameId);
       window.removeEventListener('resize', resize);
       ro.disconnect();
-      mount.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mousemove', onMouseMove);
       mount.removeEventListener('mouseenter', onMouseEnter);
-      mount.removeEventListener('mouseleave', onMouseLeave);
+      document.removeEventListener('mouseleave', onMouseLeave);
       mount.removeEventListener('click', onClick);
       mount.removeChild(renderer.domElement);
       renderer.dispose();

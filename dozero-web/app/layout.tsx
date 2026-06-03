@@ -6,12 +6,12 @@ import { cn } from "@/lib/utils";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "DoZero — Build AI Companies From Nothing",
+  title: "DoZero",
   description:
     "DoZero lets you architect, hire, and run a full AI-powered company in minutes. Describe your vision. We build the team.",
   keywords: ["AI", "automation", "agents", "company builder", "DoZero", "AI workforce"],
   openGraph: {
-    title: "DoZero — Build AI Companies From Nothing",
+    title: "DoZero",
     description:
       "Describe your vision. DoZero drafts the blueprint, hires your AI team, and sets them to work — automatically.",
     type: "website",
@@ -29,12 +29,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("h-full", "font-sans", geist.variable)}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&family=Architects+Daughter&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body className="min-h-full flex flex-col antialiased">{children}</body>
     </html>

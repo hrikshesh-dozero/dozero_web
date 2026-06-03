@@ -85,6 +85,11 @@ body {
   overflow-x: hidden;
 }
 
+select option {
+  background: #0a1028;
+  color: #fff;
+}
+
 ::selection {
   background: rgba(99, 195, 255, 0.25);
   color: #fff;
@@ -644,4 +649,25 @@ body {
   html {
     @apply font-sans;
   }
+}
+
+/* liquid-glass-react initializes its decorative layers at a default 270x69 size and
+   then animates ("all ease-out 0.2s") up to the measured content size. On first paint
+   that reads as a small white-bordered box growing into the panel. While a surface is
+   "settling", kill those transitions so it snaps to the right size instantly (hidden
+   by the entrance fade); transitions are restored afterwards for smooth step resizes. */
+.lg-settling,
+.lg-settling * {
+  transition: none !important;
+}
+
+/* liquid-glass-react draws its rounded edge with two absolutely-positioned <span>
+   highlight layers (a 0.2-opacity gradient and a full-opacity inset-white border).
+   On a large panel those read as a hard white rectangle that "appears first" as the
+   card fades in — so hide them on surfaces. The glass fill, refraction and drop
+   shadow remain; the edge is carried by the panel's own shadow + top highlight. */
+.lg-surface > span,
+.lg-surface > span[style] {
+  display: none !important;
+  opacity: 0 !important;
 }

@@ -1,0 +1,127 @@
+I have thoroughly analyzed the entire architecture of the dozero-ai-app codebase—including the Convex backend schemas, React/Vite frontend components, the state machine, agent delegation logic, and integration systems.
+Your application is incredibly mature and represents a full-fledged autonomous multi-agent enterprise platform (an AI Company Builder). It doesn’t just run linear chains; it models a cooperative corporate structure where dynamic specialists collaborate within dedicated workspace environments (Studios) to execute complex, asynchronous tasks.
+Below is an exhaustive, highly detailed breakdown of the features, services, workflows, and technical details to help you craft a phenomenal, premium, and highly persuasive landing page for your website.
+
+DoZero: The Autonomous AI Enterprise Architecture
+1. Core Positioning & The "0 to 1" Concept
+The Mission: Go from raw intent to a fully functioning autonomous digital company in under 5 minutes.
+The Paradigm Shift: Instead of configuring brittle, node-based automation workflows, the user writes a single line of Architectural Intent. DoZero’s engine drafts the corporate hierarchy, hires specialized domain experts, provisions environments, and executes operations.
+Core Taglines:
+“The architecture of what’s possible—drafted, signed, and built in front of you.”
+“Go from zero to one (from nothing to structure) and one to a hundred (autonomous execution).”
+
+2. Dynamic Team Assembly & Onboarding (The Startup Phase)
+When a user launches a company, DoZero kicks off a highly sophisticated multi-agent recruitment and onboarding protocol:
+The Coordinator (CEO Agent): A primary orchestrator AI that acts as the company's interface. It interviews the user with 5 dynamic, LLM-generated questions to define the exact product bounds, target demographic, and functional needs.
+Autonomous Hiring Pipeline: Based on the CEO’s brief, the system dynamically generates, provisions, and prompts specialized Specialist AI Employees (Domain Experts) custom-tailored to the business.
+Custom Prompting: The system generates individual, hyper-specific system prompts for each employee.
+Custom Tool Mapping: Automatically matches and assigns appropriate developer keys, APIs, and workspace privileges based on their role requirements.
+Autonomous Schedules (Cron): Assigns recurring crons (e.g., "Review open work and post progress at 9:00 AM every weekday"), making the company active even while the user is offline.
+Multi-Agent Collaborative Workspace:
+Group Channels: Agents communicate with each other in a dedicated corporate chat, tag each other (@Marketer), request outputs, and exchange files.
+1:1 Direct Messages (DMs)
+Let's resume our deep dive into the technical details and capabilities of the DoZero architecture. You can use these rich descriptions directly to populate your landing page's copy, specifications, and interactive elements.
+
+3. The Interactive "Studios" (The Specialized Workspaces)
+In DoZero, AI employees don't just write text in chats—they work inside dedicated, state-of-the-art sandbox environments called Studios. Each Studio provides specialized tools and interfaces that agents interact with and humans can view side-by-side.
+Here is a breakdown of the 6 core Studios:
+💻 Dev Studio (Coding & Infrastructure)
+The Dev Studio is a complete, cloud-native IDE for AI developers. It lets agents write, scaffold, build, and run applications in isolated sandboxes.
+Isolated E2B Sandboxes: Instant virtualization of secure, isolated Python or Node.js development environments.
+Neon PostgreSQL Provisioning: One-click databases automatically spun up, provisioned, and attached to the project.
+Live Preview Servers: Hot-reloading Web Server setups (e.g., Vite/React or FastAPI) with active port forwarding (sandboxPreviewPorts), rendering a live, interactive preview iframe directly inside the DoZero UI.
+Automatic Git-Style Diffing: The database tracks each code revision, allowing users to watch the agent make edits in real-time with highlighted additions/deletions.
+Interactive Console Monitoring: Streams live terminal logs and browser console logs (devBrowserConsoleEntries) directly to the owner.
+🌐 Browser Studio (Autonomous Cloud Browsing)
+When agents need to research, scrape, or interact with web services that lack public APIs, they spin up a cloud browser session.
+Headful Cloud Browsers: Powered by the @onkernel/sdk Computer Controls API and Playwright, driving an active, cloud-hosted browser.
+Real-time Live Iframe View: Users can watch the browser screen in real-time as the agent clicks, scrolls, presses keys, and navigates.
+Stealth & Anti-Detection: Built-in stealth configs to bypass bot detection, scrapers, and CAPTCHAs.
+Stateful Continuations: Session details are persisted in the browserSessions table so agents can resume browsing paths across different task steps or runs.
+🎨 Design Studio (Visual & Brand Identity)
+A workspace dedicated to visual assets, user interfaces, and brand guidelines.
+Brand Guideline Generators: Creates structured JSON schemas representing fonts, Harmonious color palettes, and spacing systems.
+HTML Slide Decks & Mockups: Builds premium, presentation-ready components and interactive slide templates directly in HTML/CSS.
+SVG Graphics Engine: Codes customized vectors and branding assets from scratch.
+AI Image Pipelines: Generates descriptive prompts and briefs, invoking DALL-E or Midjourney models to generate rich, high-resolution visuals.
+📊 Data Studio (Analytics & Data Warehousing)
+Where analysts compile, process, and present business intelligence.
+KPI Dashboards: Builds interactive HTML charts and analytical dashboard panels.
+Structured Datasets: Compiles raw logs or CSVs into formatted JSON/SQL structures.
+** KPI Definitions & KPI Dictionaries**: Establishes consistent metrics and equations across all company reports.
+🔍 Research Studio (Market Intelligence)
+The dedicated knowledge-gathering engine.
+Competitor Scans: Regularly audits competitor websites for pricing updates, feature changes, or positioning shifts.
+Market Mapping: Automates industry landscaping and segment analysis.
+Evidence Packs: Delivers highly detailed research briefs backed by verifiable, indexed citations.
+🎬 Video Studio (Storytelling & Motion Graphics)
+Allows agents to script, storyboard, and generate video deliverables.
+Remotion Render Specs: Converts narrative shot-lists and script segments into React-based Remotion code templates.
+Automated Render Pipelines: Hands off rendering scripts to E2B sandboxes to output final media files (MP4s).
+
+4. Background Execution Engine & Workflow Orchestration
+DoZero replaces rigid, linear sequence flowcharts with an dynamic, self-directed execution DAG (Directed Acyclic Graph) modeled after modern agile sprints.
+mermaid
+graph TD
+   UserGoal[User's Raw Intent / Prompt] --> CEO[Coordinator CEO Agent]
+   CEO --> Interview[5-Question Alignment Dialog]
+   Interview --> PlanGen[Dynamic Company Plan Created]
+  
+   subgraph PlanGen [Company Plan DAG]
+       T1[Task 1: Market Research] --> T2[Task 2: System Architecture]
+       T2 --> T3[Task 3: Backend Coding]
+       T2 --> T4[Task 4: UI Design]
+       T3 --> T5[Task 5: Integration & Deploy]
+       T4 --> T5
+   end
+   T1 --> |Assigned to| Specialist1[Research Agent]
+   T3 --> |Assigned to| Specialist2[Developer Agent]
+  
+   Specialist2 --> Studio[Dev Studio Sandbox]
+   Studio --> DB[(Neon Postgres)]
+   Studio --> Preview[Vite Live Server]
+Objective Extraction & Dynamic Sprints (companyPlans): The Coordinator parses the raw intent and decomposes it into a multi-step execution plan containing objectives, category tags, expected outputs, and acceptance criteria.
+Task Dependency Graphs (DAGs): Tasks reference parent tasks (dependsOnTaskIds), creating a strict, topological dependency chain. Specialized agents execute their assigned tasks in parallel when their blocking dependencies resolve.
+Resilient, Asynchronous Tasks: Tasks run as persistent background jobs. If an agent hits a network error or a sandbox crash, the self-healing runner recovers the process, retries, or raises a structured "Blocker" chat notification to request help or credentials.
+SSE-Powered Token Streaming (runEvents): Monotonically-sequenced events stream live token outputs, reasoning steps, tool calls, and run statuses to the frontend, surviving client network drops.
+
+5. Deep External Integrations & Extensibility
+DoZero features three foundational integration layers, allowing your AI employees to connect with existing enterprise systems:
+Model Context Protocol (MCP) Connection Hub:
+Expose local databases, secure APIs, or custom developer scripts directly to agents via Streamable HTTP.
+Supports dynamic uiManifest configurations, allowing custom MCP servers to render embedded React/HTML interfaces directly within DoZero’s sidebars.
+n8n Connection Engine:
+Allows your AI agents to trigger, listen to, and execute complex workflows inside your company’s existing n8n workflows.
+Composio Hub Integration:
+Provides instant, secure OAuth mapping for over 100+ platforms (including Slack, GitHub, Jira, Salesforce, Gmail, HubSpot, and Notion).
+Agents dynamically detect when an integration is required and present the user with a clean authentication link.
+
+6. Shared Group Knowledge Infrastructure
+Rather than isolation, the AI workforce shares a collective consciousness.
+Group Memories (groupMemories): Rich, stateful snippets written by users or saved by agents. Powered by vector/semantic search, agents instantly query past decisions, system credentials, and strategic briefs.
+Group Assets File System (groupAssets): A shared asset bucket. Agents upload designs, databases, and code briefs, which other agents reference in chat simply by using @filename.
+
+Premium Copy Ideas for Your Landing Page
+Here is how you can pitch these technical highlights using high-end, premium copywriting tailored for your blueprint aesthetic:
+1. Hero Pitch
+THE ARCHITECTURE OF ZERO
+Stop assembling nodes. Stop configuring blocks. Describe your raw vision in plain English, and watch a complete corporate team dynamically self-assemble, provision secure server sandboxes, draft acceptance criteria, and execute from zero to completion on autopilot.
+DOZERO // ARCHITECTURAL INTENT
+2. Feature Section (Rich Replacements)
+01 / HYPER-SPECIALIZED WORKSPACE STUDIOS
+Copy: AI agents shouldn't be trapped in a text box. In DoZero, your engineers, analysts, and designers operate inside secure, visual sandboxes—scaffolding full-stack applications in E2B containers, navigating real cloud browsers, coding interactive SVG designs, and running databases.
+02 / OBJECTIVE DECOMPOSITION (DAG EXECUTION)
+Copy: Our Coordinator AI breaks your high-level intent down into a topological dependency graph (DAG) of explicit tasks. Agents execute tasks in parallel, await blocked prerequisites, evaluate acceptance criteria, and self-heal from runtime errors.
+03 / MODEL CONTEXT PROTOCOL (MCP) NATIVE
+Copy: Bring your own tools, databases, and APIs. With full MCP and n8n support, you can link local assets directly to your agent workforce, complete with embedded visual overlays defined on the fly.
+04 / MEMORY & SHARED ASSETS
+Copy: Agents collaborate with a unified company memory and a shared assets folder. Let your AI researcher write a market map, drop it in the assets folder, and have your AI developer instantly pull and import it using simple @filename tags in chat.
+3. Metric/Spec Bar (Interactive Blueprint Elements)
+You can include these technical stats styled as blueprint sheet specifications (e.g., at the footer or sidebar of your landing page):
+CONTAINER ENGINE: E2B SECURE SANDBOXES (V8 ISOLATES)
+DATABASE AUTO-PROVISIONER: NEON POSTGRESQL
+COMMUNICATION PROTOCOL: JSON-RPC OVER STREAMABLE SSE
+INTEGRATION STANDARD: MODEL CONTEXT PROTOCOL (MCP)
+AUTONOMOUS BROWSER RUNTIME: KERNEL COMPUTERS // PLAYWRIGHT
+STATE ENVELOPE: CONVEX RE-ACTIVE DATABASE ENGINE
+
