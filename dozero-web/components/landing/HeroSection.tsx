@@ -65,7 +65,7 @@ export default function HeroSection({ onJoinClick }: HeroSectionProps) {
           <span className="hidden sm:block w-[7px] h-[7px] rounded-full bg-white shadow-[0_0_9px_2px_rgba(180,200,255,0.65)]" />
 
           <span className="px-4 py-1.5 rounded-full border border-[rgba(80,120,200,0.25)] bg-white/90 backdrop-blur-sm">
-            <span className="text-[11px] font-medium tracking-[0.12em] uppercase text-[rgba(65,88,208)]">
+            <span className="text-[11px] font-medium tracking-[0.12em] uppercase text-[rgba(65,88,139)]">
               ✦ Build AI Companies From Zero
             </span>
           </span>
