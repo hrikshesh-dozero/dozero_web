@@ -55,11 +55,13 @@ function GrokGlyph() {
 function Mono({ ch, color }: { ch: string; color: string }) {
   return <span className="text-[18px] font-extrabold leading-none" style={{ color }}>{ch}</span>;
 }
+// MCP router core — a CPU/chip mark (technical, not a "bulb").
 function HubGlyph() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round">
-      <circle cx="12" cy="12" r="3" fill="white" stroke="none" />
-      <path d="M12 5V2M12 22v-3M5 12H2M22 12h-3M7 7 5.2 5.2M16.8 5.2 19 7M5.2 19 7 17M17 17l2 1.8" />
+    <svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="6" y="6" width="12" height="12" rx="2.5" />
+      <rect x="9.5" y="9.5" width="5" height="5" rx="1.2" fill="white" stroke="none" />
+      <path d="M9 6V3M15 6V3M9 21v-3M15 21v-3M6 9H3M6 15H3M21 9h-3M21 15h-3" />
     </svg>
   );
 }
@@ -77,8 +79,15 @@ const PROVIDERS: Provider[] = [
   { name: 'Cohere', model: 'Command', desc: 'Retrieval-tuned models built for enterprise workloads.', tags: ['RAG', 'Enterprise'], glow: 'rgba(255,122,89,0.65)', logo: '/logos/cohere.svg', glyph: <Mono ch="C" color="#ff7a59" /> },
 ];
 
-// 3×3 grid with the MCP hub in the centre.
-const ORDER = [0, 1, 2, 3, -1, 4, 5, 6, 7]; // -1 = hub
+// Staggered columns. Ghost tiles top & bottom of each column sit under the
+// vertical fade, so the grid reads as continuing off-edge — real logos stay whole.
+type Slot = Provider | 'hub' | 'ghost';
+const COLUMNS: { off: number; cells: Slot[] }[] = [
+  { off: 22, cells: ['ghost', PROVIDERS[0], PROVIDERS[3], PROVIDERS[5], 'ghost'] }, // OpenAI · Meta · Grok
+  { off: -6, cells: ['ghost', PROVIDERS[1], 'hub', PROVIDERS[6], 'ghost'] },        // Anthropic · hub · DeepSeek
+  { off: 30, cells: ['ghost', PROVIDERS[2], PROVIDERS[4], PROVIDERS[7], 'ghost'] }, // Gemini · Mistral · Cohere
+];
+const TILE = 'w-[84px] h-[84px] sm:w-[96px] sm:h-[96px] rounded-2xl';
 
 // Flip to true AFTER dropping the official SVGs into /public/logos/.
 // While false, only the built-in glyphs render — no image requests, no 404s.
@@ -96,9 +105,9 @@ function ProviderIcon({ p, size = 30 }: { p: Provider; size?: number }) {
 export default function LLMProviders() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
-  const [active, setActive] = useState<number | null>(null);
+  const [active, setActive] = useState<string | null>(null);
   const grad = 'block bg-gradient-to-b from-white via-[#dde6ff] to-[#7ba4ff] bg-clip-text text-transparent';
-  const ap = active !== null ? PROVIDERS[active] : null;
+  const ap = active ? PROVIDERS.find((p) => p.name === active) ?? null : null;
 
   return (
     <section className="relative py-28 px-6 overflow-hidden bg-[#020818]">
@@ -120,52 +129,68 @@ export default function LLMProviders() {
           Seamless integration with any LLM provider — DoZero routes every agent to the right model through one MCP layer, so you&apos;re never locked to a single vendor.
         </p>
 
-        {/* grid (left) + hover info panel (right) */}
-        <div className="mt-16 grid md:grid-cols-[auto_1fr] gap-10 md:gap-14 items-center justify-center max-w-[840px] mx-auto">
-          {/* provider grid — radial mask fades the edges into the black background */}
+        {/* grid + hover info panel — centred together as one pair */}
+        <div className="mt-16 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16 max-w-[820px] mx-auto">
+          {/* staggered provider columns — ghost half-tiles + vertical fade frame it; real logos never clip */}
           <div
-            className="grid grid-cols-3 gap-3 sm:gap-4 w-[300px] sm:w-[340px] mx-auto"
+            className="flex justify-center gap-3 sm:gap-4 mx-auto"
             style={{
-              WebkitMaskImage: 'radial-gradient(ellipse 78% 82% at 50% 50%, #000 26%, transparent 92%)',
-              maskImage: 'radial-gradient(ellipse 78% 82% at 50% 50%, #000 26%, transparent 92%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent, #000 17%, #000 83%, transparent)',
+              maskImage: 'linear-gradient(to bottom, transparent, #000 17%, #000 83%, transparent)',
             }}
           >
-            {ORDER.map((idx, cell) => {
-              if (idx === -1) {
-                return (
-                  <div key={cell} className="relative aspect-square rounded-2xl grid place-items-center border border-sky-400/30 z-10"
-                    style={{ background: 'radial-gradient(circle at 50% 32%, #3b82f6, #16306e 72%)', boxShadow: '0 0 30px rgba(59,130,246,0.55), inset 0 1px 0 rgba(255,255,255,0.3)' }} title="DoZero · MCP router">
-                    <HubGlyph />
-                  </div>
-                );
-              }
-              const p = PROVIDERS[idx];
-              const isActive = active === idx;
-              const dim = active !== null && !isActive;
-              return (
-                <button
-                  key={cell}
-                  type="button"
-                  onMouseEnter={() => setActive(idx)}
-                  onMouseLeave={() => setActive(null)}
-                  onFocus={() => setActive(idx)}
-                  onBlur={() => setActive(null)}
-                  title={p.name}
-                  className={`relative aspect-square rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.015] grid place-items-center transition-opacity duration-300 outline-none ${dim ? 'opacity-25' : 'opacity-100'}`}
-                >
-                  {/* glow lives on the icon only — works for glyphs and real logos */}
-                  <div
-                    className="relative transition-all duration-300"
-                    style={{
-                      filter: `${p.dark ? 'invert(1) ' : ''}${isActive ? `grayscale(0) drop-shadow(0 0 8px ${p.glow}) drop-shadow(0 0 16px ${p.glow})` : 'grayscale(0.5)'}`,
-                      transform: isActive ? 'scale(1.14)' : 'scale(1)',
-                    }}
-                  >
-                    <ProviderIcon p={p} />
-                  </div>
-                </button>
-              );
-            })}
+            {COLUMNS.map((col, ci) => (
+              <div key={ci} className="flex flex-col gap-3 sm:gap-4" style={{ transform: `translateY(${col.off}px)` }}>
+                {col.cells.map((c, ri) => {
+                  if (c === 'ghost') return <div key={ri} className={`${TILE} border border-white/[0.05] bg-white/[0.012]`} />;
+                  if (c === 'hub') {
+                    return (
+                      <div
+                        key={ri}
+                        className={`${TILE} relative grid place-items-center border border-sky-400/30`}
+                        style={{ background: 'radial-gradient(circle at 50% 32%, #3b82f6, #16306e 72%)', boxShadow: '0 0 32px rgba(59,130,246,0.55), inset 0 1px 0 rgba(255,255,255,0.3)' }}
+                        title="DoZero · MCP router"
+                      >
+                        <HubGlyph />
+                      </div>
+                    );
+                  }
+                  const p = c;
+                  const isActive = active === p.name;
+                  const dim = active !== null && !isActive;
+                  return (
+                    <button
+                      key={p.name}
+                      type="button"
+                      onMouseEnter={() => setActive(p.name)}
+                      onMouseLeave={() => setActive(null)}
+                      onFocus={() => setActive(p.name)}
+                      onBlur={() => setActive(null)}
+                      title={p.name}
+                      className={`${TILE} relative grid place-items-center border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.015] transition-opacity duration-300 outline-none ${dim ? 'opacity-65' : 'opacity-100'}`}
+                    >
+                      {/* neon glow on the logo only */}
+                      <div
+                        className="relative transition-transform duration-300"
+                        style={{
+                          filter: [
+                            p.dark ? 'invert(1)' : '',
+                            isActive
+                              ? p.dark
+                                ? `drop-shadow(0 0 4px ${p.glow}) drop-shadow(0 0 11px ${p.glow}) drop-shadow(0 0 22px ${p.glow})`
+                                : `drop-shadow(0 0 18px ${p.glow})`
+                              : '',
+                          ].filter(Boolean).join(' ') || 'none',
+                          transform: isActive ? 'scale(1.12)' : 'scale(1)',
+                        }}
+                      >
+                        <ProviderIcon p={p} size={46} />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </div>
 
           {/* minimal info panel */}
@@ -173,11 +198,18 @@ export default function LLMProviders() {
             <motion.div key={active ?? 'idle'} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28, ease: 'easeOut' }} className="w-full">
               {ap ? (
                 <>
-                  <div className="flex items-center gap-3 md:justify-start justify-center">
-                    <span className="grid place-items-center w-10 h-10 rounded-xl border border-white/10 bg-white/[0.04]"><ProviderIcon p={ap} size={24} /></span>
+                  <div className="flex items-center gap-3.5 md:justify-start justify-center">
+                    <span
+                      className="grid place-items-center w-14 h-14 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.09] to-white/[0.02]"
+                      style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 8px 20px -8px rgba(0,0,0,0.6)' }}
+                    >
+                      <span style={{ filter: `${ap.dark ? 'invert(1) ' : ''}drop-shadow(0 0 6px ${ap.glow})` }}>
+                        <ProviderIcon p={ap} size={30} />
+                      </span>
+                    </span>
                     <div>
-                      <div className="text-white font-semibold text-[18px] leading-tight">{ap.name}</div>
-                      <div className="text-white/40 text-[12px]">{ap.model}</div>
+                      <div className="text-white font-semibold text-[19px] leading-tight tracking-tight">{ap.name}</div>
+                      <div className="text-white/40 text-[12.5px] mt-0.5">{ap.model}</div>
                     </div>
                   </div>
                   <p className="mt-4 text-white/55 text-[13.5px] leading-relaxed max-w-[320px] md:mx-0 mx-auto">{ap.desc}</p>
@@ -189,7 +221,7 @@ export default function LLMProviders() {
               ) : (
                 <>
                   <div className="text-white/80 font-semibold text-[17px]">One layer, every model</div>
-                  <p className="mt-2 text-white/40 text-[13.5px] leading-relaxed max-w-[320px] md:mx-0 mx-auto">Hover a provider to see how DoZero connects to it through the MCP router — switch models without changing a line of code.</p>
+                  <p className="mt-2 text-white/40 text-[13.5px] leading-relaxed max-w-[320px] md:mx-0 mx-auto">Every agent runs on the model best suited to its task — and you can switch providers anytime without lock-in or rewrites.</p>
                 </>
               )}
             </motion.div>
