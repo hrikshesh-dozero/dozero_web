@@ -55,18 +55,7 @@ function GrokGlyph() {
 function Mono({ ch, color }: { ch: string; color: string }) {
   return <span className="text-[18px] font-extrabold leading-none" style={{ color }}>{ch}</span>;
 }
-// MCP router core — a CPU/chip mark (technical, not a "bulb").
-function HubGlyph() {
-  return (
-    <svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="6" y="6" width="12" height="12" rx="2.5" />
-      <rect x="9.5" y="9.5" width="5" height="5" rx="1.2" fill="white" stroke="none" />
-      <path d="M9 6V3M15 6V3M9 21v-3M15 21v-3M6 9H3M6 15H3M21 9h-3M21 15h-3" />
-    </svg>
-  );
-}
-
-type Provider = { name: string; model: string; desc: string; tags: string[]; glow: string; logo: string; glyph: React.ReactNode; dark?: boolean };
+type Provider = { name: string; model: string; desc: string; tags: string[]; glow: string; logo: string; glyph: React.ReactNode; dark?: boolean; bg?: string };
 
 const PROVIDERS: Provider[] = [
   { name: 'OpenAI', model: 'GPT-4o · o-series', desc: 'Frontier GPT and o-series — top-tier reasoning and tool use.', tags: ['Reasoning', 'Tools', 'Vision'], glow: 'rgba(16,200,150,0.7)', logo: '/logos/openai.svg', glyph: <OpenAIGlyph />, dark: true },
@@ -75,19 +64,21 @@ const PROVIDERS: Provider[] = [
   { name: 'Meta', model: 'Llama', desc: 'Open-weight models you can host and fine-tune anywhere.', tags: ['Open weights', 'Self-host'], glow: 'rgba(40,140,255,0.7)', logo: '/logos/meta.svg', glyph: <MetaGlyph /> },
   { name: 'Mistral', model: 'Mistral · Mixtral', desc: 'Lean open models and Mixtral mixture-of-experts.', tags: ['Open', 'MoE', 'Efficient'], glow: 'rgba(255,140,30,0.65)', logo: '/logos/mistral.svg', glyph: <MistralGlyph /> },
   { name: 'xAI', model: 'Grok', desc: 'Real-time knowledge paired with strong reasoning.', tags: ['Realtime', 'Reasoning'], glow: 'rgba(220,225,235,0.6)', logo: '/logos/grok.svg', glyph: <GrokGlyph />, dark: true },
-  { name: 'DeepSeek', model: 'V3 · R1', desc: 'Open reasoning models with frontier quality at low cost.', tags: ['Open', 'Reasoning', 'Cheap'], glow: 'rgba(77,107,254,0.7)', logo: '/logos/deepseek.svg', glyph: <Mono ch="D" color="#5b7cfe" /> },
+  { name: 'DeepSeek', model: 'V3 · R1', desc: 'Open reasoning models with frontier quality at low cost.', tags: ['Open', 'Reasoning', 'Cheap'], glow: 'rgba(77,107,254,0.7)', logo: '/logos/deepseek.png', glyph: <Mono ch="D" color="#5b7cfe" /> },
   { name: 'Cohere', model: 'Command', desc: 'Retrieval-tuned models built for enterprise workloads.', tags: ['RAG', 'Enterprise'], glow: 'rgba(255,122,89,0.65)', logo: '/logos/cohere.svg', glyph: <Mono ch="C" color="#ff7a59" /> },
+  { name: 'Qwen', model: 'Qwen', desc: 'Alibaba’s open, strongly multilingual models.', tags: ['Open', 'Multilingual'], glow: 'rgba(124,92,230,0.6)', logo: '/logos/qwen.svg', glyph: <Mono ch="Q" color="#8b5cf6" />, bg: 'rgba(110,100,240,0.45)' },
+  { name: 'Perplexity', model: 'Sonar', desc: 'Search-grounded answers with live citations.', tags: ['Search', 'Citations'], glow: 'rgba(32,184,196,0.6)', logo: '/logos/perplexity.png', glyph: <Mono ch="P" color="#20b8c4" /> },
+  { name: 'Groq', model: 'LPU', desc: 'Ultra-low-latency inference at extreme speed.', tags: ['Fast', 'Low latency'], glow: 'rgba(245,80,54,0.6)', logo: '/logos/groq.png', glyph: <Mono ch="G" color="#f55036" />, bg: 'rgba(245,110,40,0.5)' },
 ];
 
-// Staggered columns. Ghost tiles top & bottom of each column sit under the
-// vertical fade, so the grid reads as continuing off-edge — real logos stay whole.
-type Slot = Provider | 'hub' | 'ghost';
-const COLUMNS: { off: number; cells: Slot[] }[] = [
-  { off: 22, cells: ['ghost', PROVIDERS[0], PROVIDERS[3], PROVIDERS[5], 'ghost'] }, // OpenAI · Meta · Grok
-  { off: -6, cells: ['ghost', PROVIDERS[1], 'hub', PROVIDERS[6], 'ghost'] },        // Anthropic · hub · DeepSeek
-  { off: 30, cells: ['ghost', PROVIDERS[2], PROVIDERS[4], PROVIDERS[7], 'ghost'] }, // Gemini · Mistral · Cohere
-];
 const TILE = 'w-[84px] h-[84px] sm:w-[96px] sm:h-[96px] rounded-2xl';
+
+// Auto-scrolling marquee columns (alternating up/down), duplicated for a seamless loop.
+const SCROLL: { dir: 'mq-up' | 'mq-down'; dur: number; items: Provider[] }[] = [
+  { dir: 'mq-up', dur: 26, items: [PROVIDERS[0], PROVIDERS[3], PROVIDERS[5], PROVIDERS[10]] },  // OpenAI · Meta · Grok · Groq
+  { dir: 'mq-down', dur: 32, items: [PROVIDERS[1], PROVIDERS[6], PROVIDERS[8], PROVIDERS[7]] }, // Anthropic · DeepSeek · Qwen · Cohere
+  { dir: 'mq-up', dur: 29, items: [PROVIDERS[2], PROVIDERS[4], PROVIDERS[9]] },                 // Gemini · Mistral · Perplexity
+];
 
 // Flip to true AFTER dropping the official SVGs into /public/logos/.
 // While false, only the built-in glyphs render — no image requests, no 404s.
@@ -102,6 +93,37 @@ function ProviderIcon({ p, size = 30 }: { p: Provider; size?: number }) {
   return <>{p.glyph}</>;
 }
 
+function ProviderTile({ p, active, setActive }: { p: Provider; active: string | null; setActive: (v: string | null) => void }) {
+  const isActive = active === p.name;
+  const dim = active !== null && !isActive;
+  return (
+    <button
+      type="button"
+      onMouseEnter={() => setActive(p.name)}
+      onMouseLeave={() => setActive(null)}
+      onFocus={() => setActive(p.name)}
+      onBlur={() => setActive(null)}
+      title={p.name}
+      className={`${TILE} mb-3 sm:mb-4 shrink-0 relative grid place-items-center border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.015] transition-opacity duration-300 outline-none ${dim ? 'opacity-60' : 'opacity-100'}`}
+    >
+      {/* always-on backdrop glow for dark/low-contrast logos */}
+      {p.bg && <span className="absolute inset-2.5 rounded-2xl pointer-events-none" style={{ background: `radial-gradient(circle, ${p.bg}, transparent 70%)`, filter: 'blur(7px)' }} />}
+      <div
+        className="relative transition-transform duration-300"
+        style={{
+          filter: [
+            p.dark ? 'invert(1)' : '',
+            isActive ? (p.dark ? `drop-shadow(0 0 4px ${p.glow}) drop-shadow(0 0 11px ${p.glow}) drop-shadow(0 0 22px ${p.glow})` : `drop-shadow(0 0 18px ${p.glow})`) : '',
+          ].filter(Boolean).join(' ') || 'none',
+          transform: isActive ? 'scale(1.12)' : 'scale(1)',
+        }}
+      >
+        <ProviderIcon p={p} size={46} />
+      </div>
+    </button>
+  );
+}
+
 export default function LLMProviders() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
@@ -110,7 +132,7 @@ export default function LLMProviders() {
   const ap = active ? PROVIDERS.find((p) => p.name === active) ?? null : null;
 
   return (
-    <section className="relative py-28 px-6 overflow-hidden bg-[#020818]">
+    <section className="relative pt-44 pb-28 px-6 overflow-hidden bg-[#020818]">
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] h-[460px] pointer-events-none"
         style={{ background: 'radial-gradient(ellipse at center, rgba(59,130,246,0.15), transparent 70%)', filter: 'blur(34px)' }} />
       <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle, rgba(140,170,255,1) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
@@ -131,70 +153,33 @@ export default function LLMProviders() {
 
         {/* grid + hover info panel — centred together as one pair */}
         <div className="mt-16 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16 max-w-[820px] mx-auto">
-          {/* staggered provider columns — ghost half-tiles + vertical fade frame it; real logos never clip */}
+          {/* auto-scrolling provider marquee — columns drift vertically, pause on hover */}
           <div
-            className="flex justify-center gap-3 sm:gap-4 mx-auto"
+            className="group flex justify-center gap-3 sm:gap-4 h-[440px] overflow-hidden"
             style={{
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent, #000 17%, #000 83%, transparent)',
-              maskImage: 'linear-gradient(to bottom, transparent, #000 17%, #000 83%, transparent)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent)',
+              maskImage: 'linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent)',
             }}
           >
-            {COLUMNS.map((col, ci) => (
-              <div key={ci} className="flex flex-col gap-3 sm:gap-4" style={{ transform: `translateY(${col.off}px)` }}>
-                {col.cells.map((c, ri) => {
-                  if (c === 'ghost') return <div key={ri} className={`${TILE} border border-white/[0.05] bg-white/[0.012]`} />;
-                  if (c === 'hub') {
-                    return (
-                      <div
-                        key={ri}
-                        className={`${TILE} relative grid place-items-center border border-sky-400/30`}
-                        style={{ background: 'radial-gradient(circle at 50% 32%, #3b82f6, #16306e 72%)', boxShadow: '0 0 32px rgba(59,130,246,0.55), inset 0 1px 0 rgba(255,255,255,0.3)' }}
-                        title="DoZero · MCP router"
-                      >
-                        <HubGlyph />
-                      </div>
-                    );
-                  }
-                  const p = c;
-                  const isActive = active === p.name;
-                  const dim = active !== null && !isActive;
-                  return (
-                    <button
-                      key={p.name}
-                      type="button"
-                      onMouseEnter={() => setActive(p.name)}
-                      onMouseLeave={() => setActive(null)}
-                      onFocus={() => setActive(p.name)}
-                      onBlur={() => setActive(null)}
-                      title={p.name}
-                      className={`${TILE} relative grid place-items-center border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.015] transition-opacity duration-300 outline-none ${dim ? 'opacity-65' : 'opacity-100'}`}
-                    >
-                      {/* neon glow on the logo only */}
-                      <div
-                        className="relative transition-transform duration-300"
-                        style={{
-                          filter: [
-                            p.dark ? 'invert(1)' : '',
-                            isActive
-                              ? p.dark
-                                ? `drop-shadow(0 0 4px ${p.glow}) drop-shadow(0 0 11px ${p.glow}) drop-shadow(0 0 22px ${p.glow})`
-                                : `drop-shadow(0 0 18px ${p.glow})`
-                              : '',
-                          ].filter(Boolean).join(' ') || 'none',
-                          transform: isActive ? 'scale(1.12)' : 'scale(1)',
-                        }}
-                      >
-                        <ProviderIcon p={p} size={46} />
-                      </div>
-                    </button>
-                  );
-                })}
+            <style>{`
+              @keyframes mq-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+              @keyframes mq-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+            `}</style>
+            {SCROLL.map((col, ci) => (
+              <div
+                key={ci}
+                className="flex flex-col will-change-transform group-hover:[animation-play-state:paused]"
+                style={{ animation: `${col.dir} ${col.dur}s linear infinite` }}
+              >
+                {[...col.items, ...col.items].map((p, i) => (
+                  <ProviderTile key={`${p.name}-${i}`} p={p} active={active} setActive={setActive} />
+                ))}
               </div>
             ))}
           </div>
 
-          {/* minimal info panel */}
-          <div className="relative min-h-[170px] flex items-center md:text-left text-center">
+          {/* minimal info panel — fixed width so content swaps never resize/recenter the pair */}
+          <div className="relative min-h-[170px] w-full md:w-[330px] flex items-center md:text-left text-center">
             <motion.div key={active ?? 'idle'} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28, ease: 'easeOut' }} className="w-full">
               {ap ? (
                 <>
