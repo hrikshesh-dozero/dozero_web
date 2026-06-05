@@ -57,8 +57,39 @@ export default function JoinModal({ isOpen, onClose }: JoinModalProps) {
     setTimeout(onClose, 1800);
   };
 
+  // Submit the collected answers to the Google Form configured in NEXT_PUBLIC_GFORM_LINK.
+  // The env link is a "prefill" viewform URL (…/viewform?…&entry.NNN=EMAIL_HERE&…). We swap
+  // the placeholders for the real values and POST to the form's /formResponse endpoint.
+  // Google Forms doesn't send CORS headers, so we fire-and-forget with mode: 'no-cors'.
+  const submitToGoogleForm = () => {
+    const link = process.env.NEXT_PUBLIC_GFORM_LINK;
+    if (!link) return;
+
+    const filled = link
+      .replace('EMAIL_HERE', encodeURIComponent(formData.email))
+      .replace('NAME_HERE', encodeURIComponent(formData.name))
+      .replace('PHONE_HERE', encodeURIComponent(formData.phone))
+      .replace('SOCIAL_HERE', encodeURIComponent(formData.social));
+
+    const [base, query = ''] = filled.replace('/viewform', '/formResponse').split('?');
+
+    try {
+      void fetch(base, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: query,
+      });
+    } catch {
+      /* fire-and-forget — the success screen shows regardless */
+    }
+  };
+
   useEffect(() => {
-    if (step === 5) finishAndClose();
+    if (step === 5) {
+      submitToGoogleForm();
+      finishAndClose();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
